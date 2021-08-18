@@ -26,8 +26,8 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 4. Create a file (cluster-details) with following content. You can modfy this as per your environment. 
     ```bash
     export ASSISTED_SERVICE_API="api.openshift.com"
-    export CLUSTER_VERSION="4.8"
-    export CLUSTER_IMAGE="quay.io/openshift-release-dev/ocp-release:4.8.2-x86_64"
+    export CLUSTER_VERSION="4.7"
+    export CLUSTER_IMAGE="quay.io/openshift-release-dev/ocp-release:4.7.21-x86_64"
     export CLUSTER_NAME="test-rgrs"
     export CLUSTER_DOMAIN="home.lab"
     export CLUSTER_NET_TYPE="openshiftSDN"
@@ -39,7 +39,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     export CLUSTER_WORKER_COUNT="0"
     export CLUSTER_MASTER_HT="Enabled"
     export CLUSTER_MASTER_COUNT="0"
-    export CLUSTER_SSHKEY='<PUT-PUBLIC-SSH-KEY-HERE-AND-LEAVE-SINGLE-QUOTES>'
+    export CLUSTER_SSHKEY=$(cat ~/.ssh/id_rsa.pub)
     ```
 5. Export the variables in your environment
     ```bash
@@ -72,7 +72,6 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
       "cluster_network_cidr": "$CLUSTER_CIDR_NET",
       "cluster_network_host_prefix": $CLUSTER_HOST_PFX,
       "service_network_cidr": "$CLUSTER_CIDR_SVC",
-      "user_managed_networking": true,
       "vip_dhcp_allocation": false,
       "host_networks": "$CLUSTER_HOST_NET",
       "hosts": [],
@@ -92,7 +91,19 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 
     CLUSTER_ID="6c0d6c3a-7c4e-4a2b-9448-5a00a0195914"
     ```
-11. Update the cluster install-config via the Assisted-Service API
+
+11. REFRESH TOKEN:
+   ```bash
+   export TOKEN=$(curl \
+   --silent \
+   --data-urlencode "grant_type=refresh_token" \
+   --data-urlencode "client_id=cloud-services" \
+   --data-urlencode "refresh_token=${OFFLINE_ACCESS_TOKEN}" \
+   https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token | \
+   jq -r .access_token)
+   
+
+12. Update the cluster install-config via the Assisted-Service API
      ```bash
      curl \
      --header "Content-Type: application/json" \
@@ -101,7 +112,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
      -H "Authorization: Bearer $TOKEN" \
      "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/install-config"
      ```
-12. Review your changes by issuing following curl command
+13. Review your changes by issuing following curl command
     ```bash
     curl -s -X GET \
     --header "Content-Type: application/json" \
@@ -112,7 +123,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     apiVersion: v1
     baseDomain: home.lab
     networking:
-      networkType: Cilium
+      networkType: OpenshiftSDN
       clusterNetwork:
       - cidr: 10.128.0.0/14
         hostPrefix: 23
@@ -137,7 +148,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     pullSecret: 'Your-Pull-Secret'
     sshKey: 'Your-SSH_KEY'
     ```
-13. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
+14. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
     ![AI Console](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/ai-console.png)
 
 14. Click on cluster name for details. Review and click on "Next"
