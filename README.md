@@ -101,7 +101,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
    --data-urlencode "refresh_token=${OFFLINE_ACCESS_TOKEN}" \
    https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token | \
    jq -r .access_token)
-   
+   ```
 
 12. Update the cluster install-config via the Assisted-Service API
      ```bash
@@ -112,6 +112,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
      -H "Authorization: Bearer $TOKEN" \
      "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/install-config"
      ```
+     
 13. Review your changes by issuing following curl command
     ```bash
     curl -s -X GET \
