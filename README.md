@@ -82,14 +82,14 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     ```
 10. Create the cluster via Assisted-Servcice API this will generate a "cluster id" whcih will need to be exported for future use.
      ```bash
-     curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
+     export CLUSTER_ID=$( curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
      -d @./deployment.json \
-     --header "Content-Type: application/json" \
+     -H "Content-Type: application/json" \
      -H "Authorization: Bearer $TOKEN" \
-     | jq '.id'
-     "6c0d6c3a-7c4e-4a2b-9448-5a00a0195914"
+     | jq '.id' )
 
-    CLUSTER_ID="6c0d6c3a-7c4e-4a2b-9448-5a00a0195914"
+    export $CLUSTER_ID
+    "6c0d6c3a-7c4e-4a2b-9448-5a00a0195914"
     ```
 
 11. REFRESH TOKEN:
@@ -153,8 +153,61 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 
 14. Click on cluster name for details. Review and click on "Next"
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
- 
-15. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot you VM/Baremetal with ISO.
+
+15. GENERATE NMSTATE YAML FILES:
+```bash
+
+cat << EOF > ~/master-0.yaml 
+dns-resolver:
+  config:
+    server:
+    - 192.168.1.210
+interfaces:
+- ipv4:
+    address:
+    - ip: 192.168.2.100
+      prefix-length: 24
+    dhcp: false
+    enabled: true
+  name: ens192
+  state: up
+  type: ethernet
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    next-hop-address: 192.168.2.1
+    next-hop-interface: ens192
+    table-id: 254
+EOF
+```
+
+16. GENERATE DISCOVERY ISO FILES:
+```bash
+DATA=$(mktemp)
+
+jq -n --arg SSH_KEY "$CLUSTER_SSHKEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)"  \
+'{
+  "ssh_public_key": $SSH_KEY,
+  "image_type": "full-iso",
+  "static_network_config": [
+    {
+      "network_yaml": $NMSTATE_YAML1,
+      "mac_interface_map": [{"mac_address": "00:50:56:b9:02:7b", "logical_nic_name": "ens192"}]
+    }
+  ]
+}' > $DATA
+
+curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/downloads/image" \
+  -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN" -d @$DATA
+```
+
+17. DOWNLOAD DISCOVERY ISO FILES:
+   ```bash
+   curl -L "http://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/downloads/image" \
+   -o ~/discovery-image-$CLUSTER_NAME-master0.iso  -H "Authorization: Bearer $TOKEN"
+  ```
+
+15. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
 16. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
