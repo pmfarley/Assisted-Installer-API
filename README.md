@@ -161,10 +161,10 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 14. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
     ![AI Console](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/ai-console.png)
 
-14. Click on cluster name for details. Review and click on "Next"
+15. Click on cluster name for details. Review and click on "Next"
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
 
-15. GENERATE THE NMSTATE YAML FILES:
+16. GENERATE THE NMSTATE YAML FILES:
     Create a yaml file for each node in the cluster (master-0, master-1, master-2, worker-0, worker-1, worker-2)
 ```bash
 
@@ -191,15 +191,15 @@ routes:
     table-id: 254
 EOF
 ```
-16. PATCH THE CONFIGURATION TO INCLUDE A PROXY SERVER (OPTIONAL)
+17. PATCH THE CONFIGURATION TO INCLUDE A PROXY SERVER (OPTIONAL)
    ```bash
    curl -X PATCH "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
     -H "accept: application/json" \
     -H "Content-Type: application/json" \
     -d {"http_proxy": "<http-proxy-address>", "https_proxy": "<https-proxy-address>", "no_proxy": "<no-proxy-addresses>"}
+   ```
 
-
-**16. GENERATE THE DISCOVERY ISO FILE:**
+**18. GENERATE THE DISCOVERY ISO FILE:**
 ```bash
 DATA=$(mktemp)
 
@@ -241,13 +241,13 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
   -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN" -d @$DATA
 ```
 
-17. DOWNLOAD THE DISCOVERY ISO FILE:
+19. DOWNLOAD THE DISCOVERY ISO FILE:
    ```bash
    curl -L "http://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/downloads/image" \
    -o ~/discovery-image-$CLUSTER_NAME-master0.iso  -H "Authorization: Bearer $TOKEN"
   ```
 
-18. OPTIONALLY RETRIEVE THE AWS S3 DOWNLOAD URL:
+20. OPTIONALLY RETRIEVE THE AWS S3 DOWNLOAD URL:
    ```bash
    curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" -H "Authorization: Bearer $TOKEN"|jq .image_info
    
