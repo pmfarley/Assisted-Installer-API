@@ -250,19 +250,19 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
    -o ~/discovery-image-$CLUSTER_NAME-master0.iso  -H "Authorization: Bearer $TOKEN"
   ```
 
-20. OPTIONALLY RETRIEVE THE AWS S3 DOWNLOAD URL:
+20. RETRIEVE THE AWS S3 DOWNLOAD URL (OPTIONAL):
    ```bash
    curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
    -H "Authorization: Bearer $TOKEN"|jq .image_info
    
      "download_url": "https://s3.us-east-1.amazonaws.com/assisted-installer/discovery-image-....", 
      "expires_at": "2021-08-19T07:11:46.229Z"
-     ```
+   ```
 
-18. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
+21. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
-19. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
+22. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
     ![Service IP](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/service-ip.png)
 
-20. Proceed to click on Next and Install the cluster
+23. Proceed to click on Next and Install the cluster
