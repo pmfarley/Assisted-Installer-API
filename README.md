@@ -164,7 +164,15 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 15. Click on cluster name for details. Review and click on "Next"
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
 
-16. GENERATE THE NMSTATE YAML FILES:
+16. PATCH THE CONFIGURATION TO INCLUDE A PROXY SERVER (OPTIONAL)
+   ```bash
+   curl -X PATCH "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
+    -H "accept: application/json" \
+    -H "Content-Type: application/json" \
+    -d {"http_proxy": "<http-proxy-address>", "https_proxy": "<https-proxy-address>", "no_proxy": "<no-proxy-addresses>"}
+   ```
+
+17. GENERATE THE NMSTATE YAML FILES:
     Create a yaml file for each node in the cluster 
     (master-0, master-1, master-2, worker-0, worker-1, worker-2)
     The master-0 file is shown below. Replicate this for the other nodes, changing the IP address.
@@ -193,14 +201,6 @@ routes:
     table-id: 254
 EOF
 ```
-17. PATCH THE CONFIGURATION TO INCLUDE A PROXY SERVER (OPTIONAL)
-   ```bash
-   curl -X PATCH "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
-    -H "accept: application/json" \
-    -H "Content-Type: application/json" \
-    -d {"http_proxy": "<http-proxy-address>", "https_proxy": "<https-proxy-address>", "no_proxy": "<no-proxy-addresses>"}
-   ```
-
 **18. GENERATE THE DISCOVERY ISO FILE:**
 ```bash
 DATA=$(mktemp)
