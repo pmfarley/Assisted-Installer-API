@@ -262,7 +262,7 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
 21. Boot your VM/Baremetal with the Discovery ISO.
 
 
-23. In Host discovery Tab, the nodes will appear in the list.
+23. In Host discovery Tab, once all of your nodes appear in the list, click on Next.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
 22. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
