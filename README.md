@@ -165,7 +165,8 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
 
 16. GENERATE THE NMSTATE YAML FILES:
-    Create a yaml file for each node in the cluster (master-0, master-1, master-2, worker-0, worker-1, worker-2)
+    Create a yaml file for each node in the cluster 
+    (master-0, master-1, master-2, worker-0, worker-1, worker-2)
     The master-0 file is shown below. Replicate this for the other nodes, changing the IP address.
 ```bash
 
