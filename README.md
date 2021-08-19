@@ -204,7 +204,8 @@ EOF
 ```bash
 DATA=$(mktemp)
 
-jq -n --arg SSH_KEY "$NODE_SSH_KEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)" --arg NMSTATE_YAML2 "$(cat ~/master-1.yaml)" \
+jq -n --arg SSH_KEY "$NODE_SSH_KEY" \
+--arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)" --arg NMSTATE_YAML2 "$(cat ~/master-1.yaml)" \
 --arg NMSTATE_YAML3 "$(cat ~/master-2.yaml)" --arg NMSTATE_YAML4 "$(cat ~/worker-0.yaml)" \
 --arg NMSTATE_YAML5 "$(cat ~/worker-1.yaml)" --arg NMSTATE_YAML6 "$(cat ~/worker-2.yaml)" \
 '{
