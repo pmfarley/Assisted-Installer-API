@@ -96,7 +96,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     ```
 
 11. REFRESH TOKEN:  
-    (This may need to performed periodically)
+    (This may need to be performed periodically)
    ```bash
    export TOKEN=$(curl \
    --silent \
@@ -166,6 +166,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 
 16. GENERATE THE NMSTATE YAML FILES:
     Create a yaml file for each node in the cluster (master-0, master-1, master-2, worker-0, worker-1, worker-2)
+    The master-0 file is shown below. Replicate this for the other nodes, changing the IP address.
 ```bash
 
 cat << EOF > ~/master-0.yaml 
@@ -203,8 +204,9 @@ EOF
 ```bash
 DATA=$(mktemp)
 
-jq -n --arg SSH_KEY "$NODE_SSH_KEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)" --arg NMSTATE_YAML2 "$(cat ~/master-1.yaml)" --arg NMSTATE_YAML3 "$(cat ~/master-2.yaml)" \
---arg NMSTATE_YAML4 "$(cat ~/worker-0.yaml)" --arg NMSTATE_YAML5 "$(cat ~/worker-1.yaml)" --arg NMSTATE_YAML6 "$(cat ~/worker-2.yaml)" \
+jq -n --arg SSH_KEY "$NODE_SSH_KEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)" --arg NMSTATE_YAML2 "$(cat ~/master-1.yaml)" \
+--arg NMSTATE_YAML3 "$(cat ~/master-2.yaml)" --arg NMSTATE_YAML4 "$(cat ~/worker-0.yaml)" \
+--arg NMSTATE_YAML5 "$(cat ~/worker-1.yaml)" --arg NMSTATE_YAML6 "$(cat ~/worker-2.yaml)" \
 '{
   "ssh_public_key": $SSH_KEY,
   "image_type": "full-iso",
@@ -249,9 +251,11 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
 
 20. OPTIONALLY RETRIEVE THE AWS S3 DOWNLOAD URL:
    ```bash
-   curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" -H "Authorization: Bearer $TOKEN"|jq .image_info
+   curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
+   -H "Authorization: Bearer $TOKEN"|jq .image_info
    
-     "download_url": "https://s3.us-east-1.amazonaws.com/assisted-installer/discovery-image-....", "expires_at": "2021-08-19T07:11:46.229Z"
+     "download_url": "https://s3.us-east-1.amazonaws.com/assisted-installer/discovery-image-....", 
+     "expires_at": "2021-08-19T07:11:46.229Z"
      ```
 
 18. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
