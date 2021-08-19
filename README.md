@@ -267,7 +267,11 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
 23. In Host discovery Tab, once all of your nodes appear in the list, click on Next.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
-22. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
+22. In the Networking tab, review the settings for the Cluster network CIDR, host prefix, and Service network CIDR. 
+    Verify that these have been set as specified previously from in cluster-details file.
+
+    From this tab, also enter the static IP addresses for the API VIP and the Ingress VIP. 
+
     ![Service IP](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/service-ip.png)
 
 23. Proceed to click on Next and Install the cluster
