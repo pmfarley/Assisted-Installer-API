@@ -259,7 +259,10 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
      "expires_at": "2021-08-19T07:11:46.229Z"
    ```
 
-21. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
+21. Boot your VM/Baremetal with the Discovery ISO.
+
+
+23. In Host discovery Tab, the nodes will appear in the list.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
 22. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
