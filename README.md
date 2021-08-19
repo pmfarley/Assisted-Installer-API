@@ -72,6 +72,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
       "cluster_network_cidr": "$CLUSTER_CIDR_NET",
       "cluster_network_host_prefix": $CLUSTER_HOST_PFX,
       "service_network_cidr": "$CLUSTER_CIDR_SVC",
+      "user_managed_networking": false,
       "vip_dhcp_allocation": false,
       "host_networks": "$CLUSTER_HOST_NET",
       "hosts": [],
