@@ -74,8 +74,15 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
       "service_network_cidr": "$CLUSTER_CIDR_SVC",
       "user_managed_networking": false,
       "vip_dhcp_allocation": false,
+      "network_type": "$CLUSTER_NET_TYPE"
+      "api_vip": "$API_VIP"
+      "ingress_vip": "$INGRESS_VIP"
+      "machine_network_cidr": "$MACHINE_NETWORK_CIDR"
       "host_networks": "$CLUSTER_HOST_NET",
       "hosts": [],
+      "http_proxy": "$HTTP_PROXY_URL",
+      "https_proxy": "$HTTPS_PROXY_URL",
+      "no_proxy": "$NO_PROXY_DOMAINS",
       "ssh_public_key": "$CLUSTER_SSHKEY",
       "pull_secret": $PULL_SECRET
     }
