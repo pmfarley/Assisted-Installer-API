@@ -28,8 +28,8 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     export ASSISTED_SERVICE_API="api.openshift.com"
     export CLUSTER_VERSION="4.7"
     export CLUSTER_IMAGE="quay.io/openshift-release-dev/ocp-release:4.7.21-x86_64"
-    export CLUSTER_NAME="test-rgrs"
-    export CLUSTER_DOMAIN="home.lab"
+    export CLUSTER_NAME="waiops"
+    export CLUSTER_DOMAIN="redhat.local"
     export CLUSTER_NET_TYPE="openshiftSDN"
     export CLUSTER_CIDR_NET="10.128.0.0/14"
     export CLUSTER_CIDR_SVC="172.31.0.0/16"
@@ -81,18 +81,22 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     EOF
     ```
 10. Create the cluster via Assisted-Servcice API this will generate a "cluster id" whcih will need to be exported for future use.
-     ```bash
+    ```bash
      export CLUSTER_ID=$( curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
      -d @./deployment.json \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer $TOKEN" \
      | jq '.id' )
 
-    export $CLUSTER_ID
-    "6c0d6c3a-7c4e-4a2b-9448-5a00a0195914"
+    export CLUSTER_ID=$( sed -e 's/^"//' -e 's/"$//' <<<"$CLUSTER_ID")
+   
+    echo $CLUSTER_ID
+   
+    e85fc7d5-f274-4359-acc5-48044fc67132
     ```
 
-11. REFRESH TOKEN:
+11. REFRESH TOKEN:  
+    (This may need to performed periodically)
    ```bash
    export TOKEN=$(curl \
    --silent \
@@ -122,18 +126,18 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     | jq -r
     
     apiVersion: v1
-    baseDomain: home.lab
+    baseDomain: redhat.local
     networking:
       networkType: OpenshiftSDN
       clusterNetwork:
       - cidr: 10.128.0.0/14
         hostPrefix: 23
       machineNetwork:
-      - cidr: 172.30.244.0/24
+      - cidr: ""
       serviceNetwork:
       - 172.31.0.0/16
     metadata:
-      name: test-rgrs
+      name: waiops
     compute:
     - hyperthreading: Enabled
       name: worker
@@ -143,19 +147,25 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
       name: master
       replicas: 0
     platform:
-      none: {}
+      baremetal:
+        provisioningNetwork: Disabled
+        apiVIP: ""
+        ingressVIP: ""
+        hosts: []
       vsphere: null
     fips: false
     pullSecret: 'Your-Pull-Secret'
     sshKey: 'Your-SSH_KEY'
     ```
+    
 14. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
     ![AI Console](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/ai-console.png)
 
 14. Click on cluster name for details. Review and click on "Next"
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
 
-15. GENERATE NMSTATE YAML FILES:
+15. GENERATE THE NMSTATE YAML FILES:
+    Create a yaml file for each node in the cluster (master-0, master-1, master-2, worker-0, worker-1, worker-2)
 ```bash
 
 cat << EOF > ~/master-0.yaml 
@@ -181,12 +191,20 @@ routes:
     table-id: 254
 EOF
 ```
+16. PATCH THE CONFIGURATION TO INCLUDE A PROXY SERVER (OPTIONAL)
+   ```bash
+   curl -X PATCH "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
+    -H "accept: application/json" \
+    -H "Content-Type: application/json" \
+    -d {"http_proxy": "<http-proxy-address>", "https_proxy": "<https-proxy-address>", "no_proxy": "<no-proxy-addresses>"}
 
-16. GENERATE DISCOVERY ISO FILES:
+
+**16. GENERATE THE DISCOVERY ISO FILE:**
 ```bash
 DATA=$(mktemp)
 
-jq -n --arg SSH_KEY "$CLUSTER_SSHKEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)"  \
+jq -n --arg SSH_KEY "$NODE_SSH_KEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml)" --arg NMSTATE_YAML2 "$(cat ~/master-1.yaml)" --arg NMSTATE_YAML3 "$(cat ~/master-2.yaml)" \
+--arg NMSTATE_YAML4 "$(cat ~/worker-0.yaml)" --arg NMSTATE_YAML5 "$(cat ~/worker-1.yaml)" --arg NMSTATE_YAML6 "$(cat ~/worker-2.yaml)" \
 '{
   "ssh_public_key": $SSH_KEY,
   "image_type": "full-iso",
@@ -194,24 +212,52 @@ jq -n --arg SSH_KEY "$CLUSTER_SSHKEY" --arg NMSTATE_YAML1 "$(cat ~/master-0.yaml
     {
       "network_yaml": $NMSTATE_YAML1,
       "mac_interface_map": [{"mac_address": "00:50:56:b9:02:7b", "logical_nic_name": "ens192"}]
-    }
+    },
+    {
+      "network_yaml": $NMSTATE_YAML2,
+      "mac_interface_map": [{"mac_address": "00:50:56:b9:ff:58", "logical_nic_name": "ens192"}]
+    },
+    {
+      "network_yaml": $NMSTATE_YAML3,
+      "mac_interface_map": [{"mac_address": "00:50:56:b9:72:7d", "logical_nic_name": "ens192"}]
+     },
+    {
+      "network_yaml": $NMSTATE_YAML4,
+      "mac_interface_map": [{"mac_address": "00:50:56:b9:d8:09", "logical_nic_name": "ens192"}]
+    },
+    {
+      "network_yaml": $NMSTATE_YAML5,
+      "mac_interface_map": [{"mac_address": "00:50:56:b9:1e:92", "logical_nic_name": "ens192"}]
+    },
+    {
+      "network_yaml": $NMSTATE_YAML6,
+      "mac_interface_map": [{"mac_address": "00:50:56:b9:be:33", "logical_nic_name": "ens192"}]
+     }
   ]
 }' > $DATA
+
 
 curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/downloads/image" \
   -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN" -d @$DATA
 ```
 
-17. DOWNLOAD DISCOVERY ISO FILES:
+17. DOWNLOAD THE DISCOVERY ISO FILE:
    ```bash
    curl -L "http://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/downloads/image" \
    -o ~/discovery-image-$CLUSTER_NAME-master0.iso  -H "Authorization: Bearer $TOKEN"
   ```
 
-15. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
+18. OPTIONALLY RETRIEVE THE AWS S3 DOWNLOAD URL:
+   ```bash
+   curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" -H "Authorization: Bearer $TOKEN"|jq .image_info
+   
+     "download_url": "https://s3.us-east-1.amazonaws.com/assisted-installer/discovery-image-....", "expires_at": "2021-08-19T07:11:46.229Z"
+     ```
+
+18. In Host discovery Tab click on Generate Discovery ISO button. Download the ISO and boot your VM/Baremetal with ISO.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
-16. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
+19. In the networking tab review the details of service ip. Note that service IP is the one which we specified in cluster-details file
     ![Service IP](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/service-ip.png)
 
-17. Proceed to click on Next and Install the cluster
+20. Proceed to click on Next and Install the cluster
