@@ -2,7 +2,6 @@
 Using Assisted Installer with API - https://console.redhat.com/openshift/assisted-installer/clusters
 
 references - https://cloudcult.dev/cilium-installation-openshift-assisted-installer/
-
              https://github.com/rh-telco-tigers/Assisted-Installer-API
 
 # Downloading Offline Token
