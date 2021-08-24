@@ -104,7 +104,7 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     
 10. Create the cluster via Assisted-Servcice API this will generate a "cluster id" whcih will need to be exported for future use.
     ```bash
-     export CLUSTER_ID=$( curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
+    export CLUSTER_ID=$( curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
      -d @./deployment.json \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer $TOKEN" \
