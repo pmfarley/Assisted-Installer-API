@@ -127,19 +127,8 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
    https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token | \
    jq -r .access_token)
    ```
-
-12. Update the cluster install-config via the Assisted-Service API
-     ```bash
-     curl \
-     --header "Content-Type: application/json" \
-     --request PATCH \
-     --data '"{\"networking\":{\"networkType\":\"OpenshiftSDN\"}}"' \
-     -H "Authorization: Bearer $TOKEN" \
-     "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/install-config"
-     ```
      
-     
-13. Review your changes by issuing following curl command
+12. Review your changes by issuing following curl command
     ```bash
     curl -s -X GET \
     --header "Content-Type: application/json" \
@@ -180,15 +169,15 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     sshKey: 'Your-SSH_KEY'
     ```
     
-14. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
+13. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
     ![AI Console](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/ai-console.png)
 
 
-15. Click on cluster name for details. Review and click on "Next"
+14. Click on cluster name for details. Review and click on "Next"
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
 
 
-16. GENERATE THE NMSTATE YAML FILES:
+15. GENERATE THE NMSTATE YAML FILES:
     Create a yaml file for each node in the cluster 
     (master-0, master-1, master-2, worker-0, worker-1, worker-2)
     The master-0 file is shown below. Replicate this for the other nodes, changing the IP address.
@@ -218,7 +207,7 @@ routes:
 EOF
 ```
 
-17. GENERATE THE DISCOVERY ISO FILE:
+16. GENERATE THE DISCOVERY ISO FILE:
 ```bash
 DATA=$(mktemp)
 
@@ -262,13 +251,13 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
   -H "Content-Type: application/json"  -H "Authorization: Bearer $TOKEN" -d @$DATA
 ```
 
-19. DOWNLOAD THE DISCOVERY ISO FILE:
+17. DOWNLOAD THE DISCOVERY ISO FILE:
    ```bash
    curl -L "http://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/downloads/image" \
    -o ~/discovery-image-$CLUSTER_NAME-master0.iso  -H "Authorization: Bearer $TOKEN"
   ```
 
-20. RETRIEVE THE AWS S3 DOWNLOAD URL (OPTIONAL):
+18. RETRIEVE THE AWS S3 DOWNLOAD URL (OPTIONAL):
    ```bash
    curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
    -H "Authorization: Bearer $TOKEN"|jq .image_info
@@ -277,17 +266,17 @@ curl -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CL
      "expires_at": "2021-08-19T07:11:46.229Z"
    ```
 
-21. Boot your VM/Baremetal with the Discovery ISO.
+19. Boot your VM/Baremetal with the Discovery ISO.
 
 
-23. In Host discovery Tab, once all of your nodes appear in the list, click on Next.
+20. In Host discovery Tab, once all of your nodes appear in the list, click on Next.
     ![discovery host](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/discovery-iso.png)
 
-22. In the Networking tab, review the settings for the Cluster network CIDR, host prefix, and Service network CIDR. 
+21. In the Networking tab, review the settings for the Cluster network CIDR, host prefix, and Service network CIDR. 
     Verify that these have been set as specified previously from in cluster-details file.
 
     From this tab, also enter the static IP addresses for the API VIP and the Ingress VIP. 
 
     ![Service IP](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/service-ip.png)
 
-23. Proceed to click on Next and Install the cluster
+22. Proceed to click on Next and Install the cluster
