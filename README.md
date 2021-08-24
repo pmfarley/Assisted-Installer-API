@@ -1,7 +1,8 @@
 # Assisted-Installer-API
 Using Assisted Installer with API - https://console.redhat.com/openshift/assisted-installer/clusters
 
-reference - https://cloudcult.dev/cilium-installation-openshift-assisted-installer/
+references - https://cloudcult.dev/cilium-installation-openshift-assisted-installer/
+             https://github.com/rh-telco-tigers/Assisted-Installer-API
 
 # Downloading Offline Token
 
@@ -23,13 +24,14 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
    https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token | \
    jq -r .access_token)
    ```
+   
 4. Create a file (cluster-details) with following content. You can modfy this as per your environment. 
     ```bash
     export ASSISTED_SERVICE_API="api.openshift.com"
-    export CLUSTER_VERSION="4.7"
+    export CLUSTER_VERSION="4.7"                                   # OpenShift version    
     export CLUSTER_IMAGE="quay.io/openshift-release-dev/ocp-release:4.7.21-x86_64"
-    export CLUSTER_NAME="waiops"
-    export CLUSTER_DOMAIN="redhat.local"
+    export CLUSTER_NAME="waiops"                                   # OpenShift cluster name    
+    export CLUSTER_DOMAIN="redhat.local"                           # Domain name where my cluster will be deployed    
     export CLUSTER_NET_TYPE="openshiftSDN"
     export CLUSTER_CIDR_NET="10.128.0.0/14"
     export CLUSTER_CIDR_SVC="172.31.0.0/16"
@@ -39,12 +41,20 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     export CLUSTER_WORKER_COUNT="0"
     export CLUSTER_MASTER_HT="Enabled"
     export CLUSTER_MASTER_COUNT="0"
+    export API_VIP="192.168.2.103"                                  # Set the static IP address for API VIP
+    export INGRESS_VIP="192.168.2.104"                              # Set the static IP address for Ingress VIP
+    export MACHINE_CIDR_NET="192.168.2.0/24"                        # Set the Machine Network CIDR 
+    #export HTTP_PROXY_URL="https:\\192.168.1.99:3129"              # Set the http proxy url http://<user>:password>@<ipaddr>:<port> 
+    #export HTTPS_PROXY_URL="https:\\192.168.1.99:3129              # Set the https proxy url http://<user>:password>@<ipaddr>:<port> 
+    #export NO_PROXY_DOMAINS="redhat.local"                         # Set the domains to bypass proxy        
     export CLUSTER_SSHKEY=$(cat ~/.ssh/id_rsa.pub)
     ```
+    
 5. Export the variables in your environment
     ```bash
     #source cluster-details.sh
     ```
+    
 6. Verify that you can communicate with API with following curl command
     ```bash
     curl -s -X GET "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
@@ -52,6 +62,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     -H "Authorization: Bearer $TOKEN" \
     | jq -r
     ```
+    
 7. Now download the pull secret from [here](https://cloud.redhat.com/openshift/install/pull-secret) and put it in a file pull-scret.txt
     ![Pull Secret](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/pull-secret.png)
     
@@ -59,6 +70,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     ```bash
     PULL_SECRET=$(cat pull-secret.txt | jq -R .)
     ```
+    
 9. Create an Assisted-Service deployment.json file
     ```bash
     cat << EOF > ./deployment.json
@@ -88,6 +100,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     }
     EOF
     ```
+    
 10. Create the cluster via Assisted-Servcice API this will generate a "cluster id" whcih will need to be exported for future use.
     ```bash
      export CLUSTER_ID=$( curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
@@ -99,7 +112,6 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
     export CLUSTER_ID=$( sed -e 's/^"//' -e 's/"$//' <<<"$CLUSTER_ID")
    
     echo $CLUSTER_ID
-   
     e85fc7d5-f274-4359-acc5-48044fc67132
     ```
 
@@ -124,6 +136,7 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
      -H "Authorization: Bearer $TOKEN" \
      "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID/install-config"
      ```
+     
      
 13. Review your changes by issuing following curl command
     ```bash
@@ -169,18 +182,12 @@ reference - https://cloudcult.dev/cilium-installation-openshift-assisted-install
 14. Now you will see a cluster created in https://console.redhat.com/openshift/assisted-installer/clusters
     ![AI Console](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/ai-console.png)
 
+
 15. Click on cluster name for details. Review and click on "Next"
     ![cluster details](https://github.com/rh-telco-tigers/Assisted-Installer-API/blob/main/images/cluster-details.png)
 
-16. PATCH THE CONFIGURATION TO INCLUDE A PROXY SERVER (OPTIONAL)
-   ```bash
-   curl -X PATCH "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters/$CLUSTER_ID" \
-    -H "accept: application/json" \
-    -H "Content-Type: application/json" \
-    -d {"http_proxy": "<http-proxy-address>", "https_proxy": "<https-proxy-address>", "no_proxy": "<no-proxy-addresses>"}
-   ```
 
-17. GENERATE THE NMSTATE YAML FILES:
+16. GENERATE THE NMSTATE YAML FILES:
     Create a yaml file for each node in the cluster 
     (master-0, master-1, master-2, worker-0, worker-1, worker-2)
     The master-0 file is shown below. Replicate this for the other nodes, changing the IP address.
@@ -209,7 +216,8 @@ routes:
     table-id: 254
 EOF
 ```
-**18. GENERATE THE DISCOVERY ISO FILE:**
+
+17. GENERATE THE DISCOVERY ISO FILE:
 ```bash
 DATA=$(mktemp)
 
