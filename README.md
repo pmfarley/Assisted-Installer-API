@@ -102,7 +102,18 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     EOF
     ```
     
-10. Create the cluster via Assisted-Servcice API this will generate a "cluster id" whcih will need to be exported for future use.
+10. REFRESH TOKEN:  (This may need to be performed periodically)
+      ```bash
+      export TOKEN=$(curl \
+      --silent \
+      --data-urlencode "grant_type=refresh_token" \
+      --data-urlencode "client_id=cloud-services" \
+      --data-urlencode "refresh_token=${OFFLINE_ACCESS_TOKEN}" \
+      https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token | \
+      jq -r .access_token)
+      ```
+
+11. Create the cluster via Assisted-Servcice API this will generate a "cluster id" whcih will need to be exported for future use.
     ```bash
     export CLUSTER_ID=$( curl -s -X POST "https://$ASSISTED_SERVICE_API/api/assisted-install/v1/clusters" \
      -d @./deployment.json \
@@ -116,17 +127,7 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     e85fc7d5-f274-4359-acc5-48044fc67132
     ```
 
-11. REFRESH TOKEN:  
-    (This may need to be performed periodically)
-   ```bash
-   export TOKEN=$(curl \
-   --silent \
-   --data-urlencode "grant_type=refresh_token" \
-   --data-urlencode "client_id=cloud-services" \
-   --data-urlencode "refresh_token=${OFFLINE_ACCESS_TOKEN}" \
-   https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token | \
-   jq -r .access_token)
-   ```
+
      
 12. Review your changes by issuing following curl command
     ```bash
