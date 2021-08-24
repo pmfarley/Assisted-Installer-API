@@ -26,7 +26,7 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
    jq -r .access_token)
    ```
    
-4. Create a file (cluster-details) with following content. You can modfy this as per your environment. 
+4. Create a file (cluster-details) with the following content. Modfy this as per your environment. 
     ```bash
     export ASSISTED_SERVICE_API="api.openshift.com"
     export CLUSTER_VERSION="4.7"                                   # OpenShift version    
