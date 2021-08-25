@@ -32,7 +32,8 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     export CLUSTER_VERSION="4.7"                                   # OpenShift version    
     export CLUSTER_IMAGE="quay.io/openshift-release-dev/ocp-release:4.7.21-x86_64"
     export CLUSTER_NAME="waiops"                                   # OpenShift cluster name    
-    export CLUSTER_DOMAIN="redhat.local"                           # Domain name where my cluster will be deployed    
+    export CLUSTER_DOMAIN="redhat.local"                           # Domain name where my cluster will be deployed 
+    export CLUSTER_NET_TYPE="OpenShiftSDN"                         # Set the Network type to deploy with OpenShift
     export CLUSTER_CIDR_NET="10.128.0.0/14"
     export CLUSTER_CIDR_SVC="172.30.0.0/16"
     export CLUSTER_HOST_NET="172.30.244.0/24"
@@ -80,6 +81,7 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
       "openshift_version": "$CLUSTER_VERSION",
       "ocp_release_image": "$CLUSTER_IMAGE",
       "base_dns_domain": "$CLUSTER_DOMAIN",
+      "network_type": "$CLUSTER_NET_TYPE",
       "hyperthreading": "all",
       "cluster_network_cidr": "$CLUSTER_CIDR_NET",
       "cluster_network_host_prefix": $CLUSTER_HOST_PFX,
