@@ -33,7 +33,6 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     export CLUSTER_IMAGE="quay.io/openshift-release-dev/ocp-release:4.7.21-x86_64"
     export CLUSTER_NAME="waiops"                                   # OpenShift cluster name    
     export CLUSTER_DOMAIN="redhat.local"                           # Domain name where my cluster will be deployed    
-    export CLUSTER_NET_TYPE="openshiftSDN"
     export CLUSTER_CIDR_NET="10.128.0.0/14"
     export CLUSTER_CIDR_SVC="172.30.0.0/16"
     export CLUSTER_HOST_NET="172.30.244.0/24"
@@ -87,12 +86,10 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
       "service_network_cidr": "$CLUSTER_CIDR_SVC",
       "user_managed_networking": false,
       "vip_dhcp_allocation": false,
-      "network_type": "$CLUSTER_NET_TYPE"
       "api_vip": "$API_VIP"
       "ingress_vip": "$INGRESS_VIP"
       "machine_network_cidr": "$MACHINE_NETWORK_CIDR"
       "host_networks": "$CLUSTER_HOST_NET",
-      "hosts": [],
       "http_proxy": "$HTTP_PROXY_URL",
       "https_proxy": "$HTTPS_PROXY_URL",
       "no_proxy": "$NO_PROXY_DOMAINS",
@@ -126,8 +123,6 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     echo $CLUSTER_ID
     e85fc7d5-f274-4359-acc5-48044fc67132
     ```
-
-
      
 12. Review your changes by issuing following curl command
     ```bash
