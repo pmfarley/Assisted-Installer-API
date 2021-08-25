@@ -88,7 +88,6 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
       "vip_dhcp_allocation": false,
       "api_vip": "$API_VIP"
       "ingress_vip": "$INGRESS_VIP"
-      "machine_network_cidr": "$MACHINE_NETWORK_CIDR"
       "host_networks": "$CLUSTER_HOST_NET",
       "http_proxy": "$HTTP_PROXY_URL",
       "https_proxy": "$HTTPS_PROXY_URL",
