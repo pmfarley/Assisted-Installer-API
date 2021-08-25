@@ -35,7 +35,7 @@ Pull reference: https://github.com/rh-telco-tigers/Assisted-Installer-API
     export CLUSTER_DOMAIN="redhat.local"                           # Domain name where my cluster will be deployed    
     export CLUSTER_NET_TYPE="openshiftSDN"
     export CLUSTER_CIDR_NET="10.128.0.0/14"
-    export CLUSTER_CIDR_SVC="172.31.0.0/16"
+    export CLUSTER_CIDR_SVC="172.30.0.0/16"
     export CLUSTER_HOST_NET="172.30.244.0/24"
     export CLUSTER_HOST_PFX="23"
     export CLUSTER_WORKER_HT="Enabled"
